@@ -1,0 +1,13 @@
+interface:
+  display_name: "Feedback 研发投入统计"
+  short_description: "按视图统计 feedback 关联研发工时"
+  default_prompt: "Use $cem-feedback-investment-stats to统计指定飞书项目视图中 feedback 关联 Story 和 Task 的研发投入。"
+
+dependencies:
+  tools:
+    - type: "mcp"
+      value: "FeishuProjectMcp"
+      description: "读取飞书项目视图、工作项、关联关系和工时字段"
+
+policy:
+  allow_implicit_invocation: true
