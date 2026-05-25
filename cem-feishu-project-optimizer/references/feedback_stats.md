@@ -1,8 +1,10 @@
-# Feedback 回收情况统计（内置子流程）
+# Feedback 回收情况统计（历史参考流程）
+
+> 当前流程已合并到 `cem-feedback-investment-stats`。主技能命中 feedback 回收统计、客户声音录入或研发投入耗时需求时，应路由到 `cem-feedback-investment-stats`，本文仅保留历史字段、视图和分层规则作为参考。
 
 ## 触发场景
 
-当主技能 `cem-feishu-project-optimizer` 输出的规范化指令包满足以下条件时，执行本流程：
+历史触发条件如下；新任务不要再把该流程作为默认执行目标：
 - `router = cem-feishu-project-optimizer`
 - `task_type = stats`
 - `target_skill = feishu-project-feedback-recycle-stats`

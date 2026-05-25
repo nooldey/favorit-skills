@@ -29,8 +29,8 @@ description: 飞书项目统一入口编排技能。只要用户在任何项目�
 {
   "router": "cem-feishu-project-optimizer",
   "task_type": "stats",
-  "target_skill": "feishu-project-feedback-recycle-stats",
-  "normalized_instruction": "统计视图 <URL> 的 feedback 回收情况，并按开发上线时间分层输出报告",
+  "target_skill": "cem-feedback-investment-stats",
+  "normalized_instruction": "统计视图 <URL> 的 feedback 回收情况、客户声音录入内容和研发投入耗时，并输出综合 Markdown 报告",
   "parameters": {
     "project_key": "",
     "work_item_type": "",
@@ -39,24 +39,25 @@ description: 飞书项目统一入口编排技能。只要用户在任何项目�
   },
   "output_contract": {
     "format": "markdown",
-    "must_include": ["统计汇总", "分层结果", "重点建议"]
+    "must_include": ["客户声音回收概览", "本周新增填写清单", "未填写分层结果", "系统化耗时统计", "重点建议"]
   }
 }
 ```
 
-如果用户未提供参数，保留空值并在 `normalized_instruction` 中明确使用默认视图参数。
+如果用户未提供参数，保留空值并在 `normalized_instruction` 中明确缺失项；除目标 Skill 自身声明的回收统计默认视图外，不在编排层自行注入默认视图。
 
 ## 子流程路由规则
 
-- 命中 feedback 回收统计需求时，路由到内置子流程 `feishu-project-feedback-recycle-stats`，并按 [feedback_stats.md](references/feedback_stats.md) 执行。
+- 命中 feedback 回收统计、客户声音填写率、本周新增客户声音、未填写分层、feedback 研发投入耗时任一需求时，统一路由到 `cem-feedback-investment-stats`，由该 Skill 合并输出综合报告。
+- `feishu-project-feedback-recycle-stats` 已被 `cem-feedback-investment-stats` 吸收为历史参考流程，不再作为默认目标子流程。
 - 命中其他飞书项目需求时，先生成规范化指令包，再路由到对应子流程。
 - 尚无可用子流程时，直接输出规范化后的可执行指令，等待未来子技能接管执行。
 
 ## 当前内置子流程清单
 
-- `feishu-project-feedback-recycle-stats`：定义于 [feedback_stats.md](references/feedback_stats.md)，负责 feedback 回收率与分层统计执行。
+- `cem-feedback-investment-stats`：负责 feedback 回收率、客户声音录入内容、未填写分层、关联 Story/Task 和研发投入耗时综合统计。
 
 ## 资源
 
 - [patterns.md](references/patterns.md)：飞书项目需求规范化模板。
-- [feedback_stats.md](references/feedback_stats.md)：feedback 回收统计执行规则。
+- [feedback_stats.md](references/feedback_stats.md)：历史 feedback 回收统计规则，仅作为 `cem-feedback-investment-stats` 合并后的参考资料。
