@@ -13,11 +13,21 @@ description: 飞书项目统一入口编排技能。只要用户在任何项目�
 
 当输入出现"飞书项目""Feishu Project""project.feishu.cn"或明确指向飞书项目任务时，优先进入本技能，不跳过、不直连其他流程。
 
+## 工具链优先级（访问飞书项目工作项时严格执行）
+
+当访问飞书项目工作项链接地址进行信息获取时，按以下优先级选择工具链：
+
+1. **FeishuProjectMCP**（首选）：优先使用 MCP 工具获取工作项信息、视图数据、评论、工时记录等。
+2. **Meegle CLI**（次选）：当 MCP 功能缺失、鉴权失败或需要批量操作时，使用 `meegle` 命令补充。详见 [guidance/meegle-cli-guide.md](guidance/meegle-cli-guide.md)。
+3. **lark-cli**（兜底）：当 MCP 和 Meegle CLI 均不可用时，使用 `lark-cli` 作为最后手段。
+
+**阻断规则**：若上述三种工具均无法采集完整数据，**直接报错并通知对话人员**，禁止切换到浏览器 UI 读取工作项内容，禁止用历史报告、本地旧文件或模型推断补齐数据。
+
 ## 编排流程
 
 1. 识别是否属于飞书项目任务。
 2. 将原始需求映射为标准任务类型：`query`、`create`、`update`、`stats`、`report`、`debug`。
-3. 参考 [patterns.md](references/patterns.md) 生成规范化指令。
+3. 参考 [guidance/patterns.md](guidance/patterns.md) 生成规范化指令。
 4. 组装规范化指令包并路由到目标子流程。
 5. 子流程返回执行结果后，统一整理为对用户可读的最终输出。
 
@@ -91,8 +101,18 @@ description: 飞书项目统一入口编排技能。只要用户在任何项目�
 
 ## 资源
 
-- [patterns.md](references/patterns.md)：飞书项目需求规范化模板。
-- [feedback_investment_stats.md](references/feedback_investment_stats.md)：Feedback 回收与研发投入统计子流程完整规范。
-- [bug_debugger.md](references/bug_debugger.md)：Bug 单调试子流程完整规范。
-- [weekly_report.md](references/weekly_report.md)：周报生成子流程完整规范。
-- [feedback_stats.md](references/feedback_stats.md)：历史 feedback 回收统计规则，仅作为 `feedback_investment_stats` 合并后的参考资料。
+### 子流程规范（`references/`）
+
+| 文件 | 职责 |
+|---|---|
+| [references/feedback_investment_stats.md](references/feedback_investment_stats.md) | Feedback 回收与研发投入统计子流程完整规范 |
+| [references/bug_debugger.md](references/bug_debugger.md) | Bug 单调试子流程完整规范 |
+| [references/weekly_report.md](references/weekly_report.md) | 周报生成子流程完整规范 |
+
+### 指南与参考（`guidance/`）
+
+| 文件 | 职责 |
+|---|---|
+| [guidance/patterns.md](guidance/patterns.md) | 飞书项目需求规范化模板与 Prompt 最佳实践 |
+| [guidance/meegle-cli-guide.md](guidance/meegle-cli-guide.md) | Meegle CLI 集成指南，含命令映射、认证、配置与使用建议 |
+| [guidance/feedback_stats.md](guidance/feedback_stats.md) | 历史 feedback 回收统计规则，仅作为 `feedback_investment_stats` 合并后的参考资料 |

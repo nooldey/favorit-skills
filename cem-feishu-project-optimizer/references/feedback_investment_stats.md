@@ -2,7 +2,7 @@
 
 > 本文件为 `cem-feishu-project-optimizer` 内置子流程 `feedback_investment_stats` 的完整规范。
 > 前置条件：如需使用 lark-cli 写入飞书文档或表格，先阅读 [`../../lark-shared/SKILL.md`](../../lark-shared/SKILL.md)。飞书项目数据获取优先使用 FeishuProjectMcp。
-> Meegle CLI（`@lark-project/meegle`）可作为补充工具链，详见 [meegle-cli-guide.md](meegle-cli-guide.md)。
+> Meegle CLI（`@lark-project/meegle`）可作为补充工具链，详见 [guidance/meegle-cli-guide.md](../guidance/meegle-cli-guide.md)。
 > 默认前提：通过 FeishuProjectMcp 请求用户指定的飞书项目 feedback 视图数据。
 
 ## 适用场景
@@ -87,9 +87,14 @@
 
 ## 数据源优先级
 
-1. **FeishuProjectMcp**：获取视图、字段配置、关联工作项、Story 节点/子任务、工时记录。
-2. **MQL**：当普通 MCP 工具无法表达关联链时，使用 `search_by_mql` 的 `relation_field_chain`、`relation`、`linked_work_item`、`__父工作项` 语法补充查询。
-3. **lark-cli**：只用于飞书云文档/电子表格读写、资源搜索、认证授权，不用于替代飞书项目 MCP 查询，也不能作为飞书项目统计数据的兜底来源。
+严格遵守主技能定义的 **FeishuProjectMCP > Meegle CLI > lark-cli** 工具链优先级。三者均无法采集完整数据时，直接报错并通知用户。
+
+1. **FeishuProjectMcp**（首选）：获取视图、字段配置、关联工作项、Story 节点/子任务、工时记录。
+2. **Meegle CLI**（次选）：当 MCP 功能缺失、鉴权失败或需要批量操作时，使用 `meegle` 命令补充。常用命令见 [guidance/meegle-cli-guide.md](../guidance/meegle-cli-guide.md)。
+3. **MQL**（补充）：当普通 MCP 工具无法表达关联链时，使用 `search_by_mql` 或 `meegle workitem query` 的 `relation_field_chain`、`relation`、`linked_work_item`、`__父工作项` 语法补充查询。
+4. **lark-cli**（兜底）：只用于飞书云文档/电子表格读写、资源搜索、认证授权，不用于替代飞书项目 MCP 查询，也不能作为飞书项目统计数据的兜底来源。
+
+**阻断规则**：若 FeishuProjectMCP、Meegle CLI、lark-cli 三种工具均无法完成数据采集，**直接报错并通知对话人员**，禁止用历史报告、本地旧文件或模型推断补齐数据。
 
 ## 固定统计口径
 

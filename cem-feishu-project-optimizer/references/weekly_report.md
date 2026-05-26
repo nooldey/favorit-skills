@@ -1,8 +1,13 @@
 # 周报生成子流程
 
 > 本文件为 `cem-feishu-project-optimizer` 内置子流程 `weekly_report` 的完整规范。
+> Meegle CLI（`@lark-project/meegle`）可作为补充工具链，详见 [guidance/meegle-cli-guide.md](../guidance/meegle-cli-guide.md)。
 
-**CRITICAL — 开始前 MUST 先用 Read 工具读取 [`../../lark-shared/SKILL.md`](../../lark-shared/SKILL.md)，其中包含认证、权限处理。飞书项目数据统一通过全局 `FeishuProjectMcp` 获取；飞书/Lark CLI 统一使用本机全局 `lark-cli`，禁止调用项目内 `node_modules/.bin/lark-cli`。**
+**CRITICAL — 开始前 MUST 先用 Read 工具读取 [`../../lark-shared/SKILL.md`](../../lark-shared/SKILL.md)，其中包含认证、权限处理。**
+
+**工具链优先级**：飞书项目数据获取严格遵守 **FeishuProjectMCP > Meegle CLI > lark-cli**。MCP 不可用时切换到 `meegle` 命令，两者均不可用时才使用 `lark-cli`。三者均失败则报错通知用户。详见主技能 [SKILL.md](../SKILL.md)「工具链优先级」章节及 [guidance/meegle-cli-guide.md](../guidance/meegle-cli-guide.md)。
+
+飞书项目数据统一通过全局 `FeishuProjectMcp` 获取；飞书/Lark CLI 统一使用本机全局 `lark-cli`，禁止调用项目内 `node_modules/.bin/lark-cli`。
 
 ## 适用场景
 
@@ -159,9 +164,12 @@
 
 **命令示例**：
 ```bash
-# 使用全局 FeishuProjectMcp 获取视图详情
+# 方式一：使用全局 FeishuProjectMcp 获取视图详情
 # URL: https://project.feishu.cn/cem/workObjectView/test/cRua_KtDR?scope=workspaces&node=28722127
 FeishuProjectMcp.get_view_detail({"project_key":"cem","view_id":"cRua_KtDR","page_num":1})
+
+# 方式二：使用 Meegle CLI 获取视图详情（MCP 不可用时）
+meegle view get --view-id cRua_KtDR --project-key cem --page-num 1
 ```
 
 **数据提取规则**：
