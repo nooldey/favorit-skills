@@ -1,6 +1,6 @@
 # Meegle CLI 集成指南
 
-> 本文件为 `cem-feishu-project-optimizer` 的 Meegle CLI（`@lark-project/meegle`）集成参考。
+> 本文件为 `cem-feishu-project-basic` 的 Meegle CLI（`@lark-project/meegle`）集成参考。
 > Meegle CLI 是飞书项目官方命令行工具，覆盖 16 个业务域、50+ 命令，可作为 FeishuProjectMCP 和 lark-cli 的补充或替代工具链。
 
 ## 安装

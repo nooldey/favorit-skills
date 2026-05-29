@@ -4,13 +4,13 @@
 
 ## 0. 主技能输出规范
 
-主技能必须先输出"规范化指令包"再交给子流程执行。
+基础技能必须先输出“规范化指令包”再交给独立 `cem-feishu-project-*` 技能执行。
 
 ```json
 {
-  "router": "cem-feishu-project-optimizer",
+  "router": "cem-feishu-project-basic",
   "task_type": "query|create|update|stats|report|debug",
-  "target_subflow": "子流程名称",
+  "target_skill": "cem-feishu-project-feedback-stats|cem-feishu-project-bug-debugger|cem-feishu-project-weekly-report|未匹配",
   "normalized_instruction": "可执行的规范化指令",
   "parameters": {},
   "output_contract": {

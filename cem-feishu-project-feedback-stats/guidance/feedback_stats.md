@@ -1,13 +1,13 @@
 # Feedback 回收情况统计（历史参考流程）
 
-> 当前流程已合并到 `cem-feedback-investment-stats`。主技能命中 feedback 回收统计、客户声音录入或研发投入耗时需求时，应路由到 `cem-feedback-investment-stats`，本文仅保留历史字段、视图和分层规则作为参考。
+> 当前流程已合并到 `cem-feishu-project-feedback-stats`。`cem-feishu-project-basic` 命中 feedback 回收统计、客户声音录入或研发投入耗时需求时，应路由到 `cem-feishu-project-feedback-stats`，本文仅保留历史字段、视图和分层规则作为本技能内部参考。
 
 ## 触发场景
 
-历史触发条件如下；新任务不要再把该流程作为默认执行目标：
-- `router = cem-feishu-project-optimizer`
+历史触发条件如下；新任务应先经过 `cem-feishu-project-basic` 规范化，再交给 `cem-feishu-project-feedback-stats` 执行：
+- `router = cem-feishu-project-basic`
 - `task_type = stats`
-- `target_skill = feishu-project-feedback-recycle-stats`
+- `target_skill = cem-feishu-project-feedback-stats`
 - `normalized_instruction` 包含“feedback 回收情况”或等价描述
 
 ## 输入契约
@@ -16,9 +16,9 @@
 
 ```json
 {
-  "router": "cem-feishu-project-optimizer",
+  "router": "cem-feishu-project-basic",
   "task_type": "stats",
-  "target_skill": "feishu-project-feedback-recycle-stats",
+  "target_skill": "cem-feishu-project-feedback-stats",
   "normalized_instruction": "",
   "parameters": {
     "project_key": "",
@@ -197,13 +197,13 @@ unfilled_items.forEach(item => {
 });
 ```
 
-### 步骤6：输出并回传主技能
+### 步骤6：输出给 feedback 统计技能
 
 必须满足：
 - `output_contract.format`
 - `output_contract.must_include`
 
-默认只回传主技能，不主动落盘。仅在主技能明确要求时写入项目根目录，文件名格式：`YYYY-MM-DD-反馈统计报告.md`。
+默认只返回给 `cem-feishu-project-feedback-stats` 主流程，不主动落盘。仅在用户或规范化指令明确要求时写入项目根目录，文件名格式：`YYYY-MM-DD-反馈统计报告.md`。
 
 ## 输出模板
 

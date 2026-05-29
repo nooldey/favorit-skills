@@ -1,11 +1,11 @@
 # 周报生成子流程
 
-> 本文件为 `cem-feishu-project-optimizer` 内置子流程 `weekly_report` 的完整规范。
-> Meegle CLI（`@lark-project/meegle`）可作为补充工具链，详见 [guidance/meegle-cli-guide.md](../guidance/meegle-cli-guide.md)。
+> 本文件为 `cem-feishu-project-weekly-report` 的完整业务规范。
+> Meegle CLI（`@lark-project/meegle`）可作为补充工具链，详见 [cem-feishu-project-basic/guidance/meegle-cli-guide.md](../../cem-feishu-project-basic/guidance/meegle-cli-guide.md)。
 
 **CRITICAL — 开始前 MUST 先用 Read 工具读取 [`../../lark-shared/SKILL.md`](../../lark-shared/SKILL.md)，其中包含认证、权限处理。**
 
-**工具链优先级**：飞书项目数据获取严格遵守 **FeishuProjectMCP > Meegle CLI > lark-cli**。MCP 不可用时切换到 `meegle` 命令，两者均不可用时才使用 `lark-cli`。三者均失败则报错通知用户。详见主技能 [SKILL.md](../SKILL.md)「工具链优先级」章节及 [guidance/meegle-cli-guide.md](../guidance/meegle-cli-guide.md)。
+**工具链优先级**：飞书项目数据获取严格遵守 **FeishuProjectMCP > Meegle CLI > lark-cli**。MCP 不可用时切换到 `meegle` 命令，两者均不可用时才使用 `lark-cli`。三者均失败则报错通知用户。详见 `cem-feishu-project-basic`「工具链优先级」章节及 [cem-feishu-project-basic/guidance/meegle-cli-guide.md](../../cem-feishu-project-basic/guidance/meegle-cli-guide.md)。
 
 飞书项目数据统一通过全局 `FeishuProjectMcp` 获取；飞书/Lark CLI 统一使用本机全局 `lark-cli`，禁止调用项目内 `node_modules/.bin/lark-cli`。
 
