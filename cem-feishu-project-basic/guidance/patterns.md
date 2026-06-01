@@ -4,13 +4,13 @@
 
 ## 0. 主技能输出规范
 
-基础技能必须先输出“规范化指令包”再交给独立 `cem-feishu-project-*` 技能执行。
+基础技能必须先输出“规范化指令包”再交给匹配的下游技能执行。
 
 ```json
 {
   "router": "cem-feishu-project-basic",
-  "task_type": "query|create|update|stats|report|debug",
-  "target_skill": "cem-feishu-project-feedback-stats|cem-feishu-project-bug-debugger|cem-feishu-project-weekly-report|未匹配",
+  "task_type": "query|create|update|stats|report|debug|feature",
+  "target_skill": "cem-feishu-project-feedback-stats|cem-feishu-project-weekly-report|cem-frontend-mono-debugger|cem-frontend-mono-feature-dev|未匹配",
   "normalized_instruction": "可执行的规范化指令",
   "parameters": {},
   "output_contract": {
@@ -112,26 +112,33 @@
 - **场景**：统计 Feedback 回收、数据分层等。
 - **模式**：统计视图 <飞书项目视图 URL> 的 feedback 回收情况，并输出分层报告。
 - **默认视图模式**：统计默认视图的 feedback 回收情况，按开发上线时间分层。
-- **路由目标**：`feedback_investment_stats`
+- **路由目标**：`cem-feishu-project-feedback-stats`
 
 ### 研发投入统计
 - **场景**：面向 leader 汇报研发小组投入产出。
 - **模式**：统计【空间名称】空间下【时间范围】内 feedback 的客户声音填写率、关联 Story/Task 的研发投入耗时，输出综合报告。
-- **路由目标**：`feedback_investment_stats`
+- **路由目标**：`cem-feishu-project-feedback-stats`
 
 ### 周报生成
 - **场景**：生成本周工作汇总。
 - **模式**：生成本周周报，包含本周上线任务、feedback 回收情况、下周计划。
-- **路由目标**：`weekly_report`
+- **路由目标**：`cem-feishu-project-weekly-report`
 
 ## 6. Bug 调试指令
 
-### Bug 单分析
-- **场景**：分析飞书项目 Bug 单并定位根因。
-- **模式**：分析 <飞书项目 Bug 单 URL> 的问题，定位根因并修复代码。
-- **路由目标**：`bug_debugger`
+### Bug 单分析与修复
+- **场景**：飞书项目 Bug/缺陷/问题单需要在 frontend mono 仓库中定位并修复。
+- **模式**：分析 <飞书项目 Bug 单 URL> 的问题，定位根因、修复代码并本地验证。
+- **路由目标**：`cem-frontend-mono-debugger`
 
-### 回写调试结论
-- **场景**：将调试结论写回飞书项目 Bug 单。
-- **模式**：将以下调试结论写回 <飞书项目 Bug 单 URL>：【结论内容】。
-- **路由目标**：`bug_debugger`
+### 回写修复结论
+- **场景**：将 frontend mono 缺陷修复结论写回飞书项目 Bug 单。
+- **模式**：将以下修复结论写回 <飞书项目 Bug 单 URL>：【结论内容】。
+- **路由目标**：`cem-frontend-mono-debugger`
+
+## 7. Frontend mono 需求开发指令
+
+### Task/Story 前端开发
+- **场景**：飞书项目 Task/Story/需求需要在 frontend mono 仓库中规划、实现、测试。
+- **模式**：基于 <飞书项目 Task/Story URL> 开发 frontend mono 前端需求，生成计划、实现代码并完成本地验证。
+- **路由目标**：`cem-frontend-mono-feature-dev`

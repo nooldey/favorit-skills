@@ -1,7 +1,7 @@
 # Meegle CLI 集成指南
 
 > 本文件为 `cem-feishu-project-basic` 的 Meegle CLI（`@lark-project/meegle`）集成参考。
-> Meegle CLI 是飞书项目官方命令行工具，覆盖 16 个业务域、50+ 命令，可作为 FeishuProjectMCP 和 lark-cli 的补充或替代工具链。
+> Meegle CLI 是飞书项目官方命令行工具，覆盖 16 个业务域、50+ 命令，是访问飞书项目工作项、视图、评论、工时、关联、图表等数据的首选工具链。
 
 ## 安装
 
@@ -264,28 +264,16 @@ meegle url decode --url "https://project.feishu.cn/cem/workObjectView/yt_user_fe
 | workitem_related_select | `"145405865"` |
 | workitem_related_multi_select | `"[145405865,145405866]"` |
 
-## 与现有工具链的对应关系
+## 工具边界
 
-| 现有工具/方式 | Meegle CLI 替代命令 | 适用场景 |
+| 需求 | 首选 | 说明 |
 |---|---|---|
-| FeishuProjectMCP `get_workitem_brief` | `meegle workitem get` | 查询工作项详情 |
-| FeishuProjectMCP `get_view_detail` | `meegle view get` | 获取视图数据 |
-| FeishuProjectMCP `list_workitem_comments` | `meegle comment list` | 查看评论 |
-| FeishuProjectMCP `add_comment` | `meegle comment add` | 添加评论 |
-| FeishuProjectMCP `get_workitem_man_hour_records` | `meegle workhour list-records` | 查看工时记录 |
-| FeishuProjectMCP `list_schedule` | `meegle workhour list-schedule` | 查看人员排期 |
-| FeishuProjectMCP `list_related_workitem` | `meegle relation list` | 查看关联工作项 |
-| FeishuProjectMCP `get_node_detail` | `meegle workflow get-node` | 查看节点详情 |
-| FeishuProjectMCP `list_wbs_draft_rows` | `meegle wbs list-draft-rows` | 查看 WBS 草稿 |
-| FeishuProjectMCP `search_by_mql` | `meegle workitem query` | MQL 查询 |
-| lark-cli `project +search` | `meegle project search` | 搜索空间 |
-| lark-cli `docs +fetch` | — | 飞书文档读取（Meegle CLI 不覆盖） |
-| lark-cli `sheets +read` | — | 电子表格读取（Meegle CLI 不覆盖） |
+| 飞书项目工作项/视图/评论/工时/关联/节点/WBS/MQL | Meegle CLI | 失败并重试 2 次后再切 FeishuProjectMCP |
+| 飞书文档/云空间/电子表格/Base | lark-cli 或对应 `lark-*` skill | Meegle 不覆盖外部飞书资源 |
+| 通讯录 open_id、部门、邮箱、IM、日历、任务、邮件 | lark-cli 或对应 `lark-*` skill | 仅作辅助，不补飞书项目数据 |
 
 ## 使用建议
 
-1. **优先使用 FeishuProjectMCP**：MCP 工具与 Agent 集成更紧密，参数传递更自然
-2. **Meegle CLI 作为补充**：当 MCP 功能缺失、鉴权失败或需要批量操作时，切换到 Meegle CLI
-3. **lark-cli 保留用于文档/表格**：Meegle CLI 不覆盖飞书云文档和电子表格操作，这些场景继续使用 lark-cli
-4. **批量操作首选 Meegle CLI**：`workitem +batch-get` 支持单次 200 个 ID 的并发读取，效率高于逐个 MCP 调用
-5. **URL 解析使用 Meegle CLI**：`meegle url decode` 是离线工具，无需网络即可解析飞书项目 URL
+- 批量统计优先用 `meegle workitem +batch-get`（单次 <= 200 个 ID）。
+- URL 解析优先用 `meegle url decode`，离线可用。
+- 字段写入前先查元数据：`meta-types`、`meta-fields`、`meta-create-fields`。
