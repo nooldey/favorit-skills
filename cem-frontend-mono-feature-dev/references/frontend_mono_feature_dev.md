@@ -22,15 +22,19 @@
 
 ## 工程上下文分析
 
-1. 在当前执行的工程根目录查找 `docs/plans`：
+1. 在当前执行的工程根目录查找 `.gitmodules` 并解析 git submodule 信息：
+   - 提取每个 submodule 的 `path`、`url`、`branch` 等可用信息。
+   - 建立“文件路径 -> 所属 git submodule”的映射，后续源码分析、实现、验证和 code review 都必须使用这个映射。
+   - 若 `.gitmodules` 不存在，再退化为普通 mono/workspace 结构分析，并在计划文档中说明。
+2. 在当前执行的工程根目录查找 `docs/plans`：
    - 优先使用文件查找工具定位准确路径。
    - 若存在多个候选目录，选择当前 git 根或 mono 根下最接近业务代码的 `docs/plans`，并说明选择依据。
    - 若不存在，先询问用户是否创建，除非用户已明确授权创建计划目录。
-2. 分析 mono 工程结构：
+3. 分析 mono 工程结构：
    - 定位根 `package.json`、workspace 配置、子包 `package.json`。
-   - 识别与需求相关的 app/package/module。
+   - 结合 `.gitmodules` 子仓路径识别与需求相关的 app/package/module。
    - 查找路由、页面、组件、store、API service、类型定义、测试、国际化、权限、埋点等相关实现。
-3. 开始修改代码前，先检查 git 状态，识别已有用户改动。不得回滚或覆盖无关修改。
+4. 开始修改代码前，先在外层 mono 仓库和每个可能受影响的 submodule 内分别检查 git 状态，识别已有用户改动。不得回滚或覆盖无关修改。
 
 ## 开发计划文档
 
@@ -70,7 +74,7 @@ YYYYMMDD-<short-slug>-feature-plan.md
 
 ## 现状分析
 
-- <相关模块和当前实现>
+- <相关 git submodule、包、模块和当前实现>
 - <复用点、约束、风险>
 
 ## 技术方案
@@ -91,6 +95,7 @@ YYYYMMDD-<short-slug>-feature-plan.md
 
 ## 影响范围
 
+- <git submodule path 与 package.json name>
 - <包名或模块路径>
 
 ## 风险与回滚
@@ -139,16 +144,27 @@ YYYYMMDD-<short-slug>-feature-plan.md
 ## 源码开发
 
 1. 按计划和 TDD 流程分批实现，优先复用现有架构、组件、hooks、service、类型、样式和测试模式。
-2. 对跨包改动保持边界清晰，不引入不必要的新依赖。
-3. 涉及接口、权限、国际化、埋点、错误态、加载态、空态、兼容性时，按工程已有模式补齐。
-4. 修改多个模块后，适时运行针对性验证，避免把所有问题留到最后。
-5. 变更测试时遵守项目测试风格，不添加只为测试暴露的生产代码。
+2. 所有代码变更必须落在 `.gitmodules` 识别出的目标 submodule 或明确的外层配置文件中；修改前确认文件所属 submodule，修改后在该 submodule 内检查 diff。
+3. 对跨包或跨 submodule 改动保持边界清晰，不引入不必要的新依赖。
+4. 涉及接口、权限、国际化、埋点、错误态、加载态、空态、兼容性时，按工程已有模式补齐。
+5. 修改多个模块后，适时在受影响 submodule 内运行针对性验证，避免把所有问题留到最后。
+6. 变更测试时遵守项目测试风格，不添加只为测试暴露的生产代码。
 
 ## 代码评审
 
-当完成多个模块代码开发后，进入最终总结前必须调用 `code-review-expert` 对本次变更评审。评审请求中应包含：
+当完成多个模块代码开发后，进入最终总结前必须调用 `code-review-expert` 对本次变更评审。
+
+评审必须按 `.gitmodules` 识别出的受影响 submodule 分别执行：
+
+1. 先根据变更文件归类出受影响 submodule。
+2. 对每个受影响 submodule，进入该 submodule 根目录读取 `git status`、diff、`package.json`、测试结果和相关计划内容。
+3. 分别调用 `code-review-expert`，评审范围限定在该 submodule 的实际变更内。
+4. 不得只在外层 mono 仓库调用一次 review 后宣称所有子仓已评审；外层仓库通常只是 submodule 编排壳，空扫没有有效结论。
+
+评审请求中应包含：
 
 - 飞书项目需求摘要。
+- 当前评审的 git submodule 路径、submodule 名称和 `package.json` 的 `name`。
 - 计划文档路径。
 - 新增/更新的 TDD 单元测试脚本路径、源码路径到测试路径的映射和覆盖行为。
 - 主要改动文件和涉及包。
@@ -163,7 +179,7 @@ YYYYMMDD-<short-slug>-feature-plan.md
 
 ## 验证要求
 
-优先运行与改动范围最相关的命令，例如：
+优先在受影响 submodule 内运行与改动范围最相关的命令，例如：
 
 - 新增/更新的 TDD 单元测试脚本对应的最小测试命令。
 - 目标包单测或组件测试。
@@ -175,20 +191,21 @@ YYYYMMDD-<short-slug>-feature-plan.md
 
 ## Git 子仓库影响范围识别
 
-最终输出前，必须识别本次涉及改动的 git 子仓库：
+最终输出前，必须基于 `.gitmodules` 识别本次涉及改动的 git submodule：
 
-1. 从 `git status` 或变更文件列表出发，按文件所在 git 根目录归类。
-2. 对每个 git 根目录，查找最近的相关 `package.json`：
-   - 若子仓库根目录存在 `package.json`，优先读取其中 `name`。
+1. 读取外层 mono 根目录的 `.gitmodules`，建立 submodule path 清单。
+2. 从外层仓库和各 submodule 的 `git status` 或变更文件列表出发，按 `.gitmodules` 的 submodule path 归类。
+3. 对每个受影响 submodule，查找最近的相关 `package.json`：
+   - 若 submodule 根目录存在 `package.json`，优先读取其中 `name`。
    - 若改动位于 workspace 子包，读取该子包 `package.json` 的 `name`。
-   - 若无法找到 `package.json` 或没有 `name` 字段，输出路径并说明无法解析包名。
-3. 最终清单必须以 package name 为主，例如：
+   - 若无法找到 `package.json` 或没有 `name` 字段，输出 submodule path 并说明无法解析包名。
+4. 最终清单必须以 package name 为主，并保留 submodule path，例如：
 
 ```markdown
 ## 涉及 Git 子仓库
 
-- `@scope/app-a`：<简述改动>
-- `@scope/package-b`：<简述改动>
+- `@scope/app-a`（`apps/app-a`）：<简述改动>
+- `@scope/package-b`（`packages/package-b`）：<简述改动>
 ```
 
 ## 最终输出模板
@@ -209,11 +226,11 @@ TDD 单元测试脚本：
 - `<command>`：通过/失败/未运行原因
 
 代码评审：
-- `code-review-expert`：<结论>
+- `code-review-expert`（`<submodule-path>` / `<package.json name>`）：<结论>
 - 已处理：<问题或无>
 
 涉及 Git 子仓库：
-- `<package.json name>`：<改动说明>
+- `<package.json name>`（`<submodule-path>`）：<改动说明>
 
 补充说明：
 - <风险、未完成项、需要用户确认的事项；没有则省略>

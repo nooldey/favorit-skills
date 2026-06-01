@@ -2,9 +2,11 @@
 
 本规则只用于 `cem-frontend-mono-debugger` 的 mono 缺陷排查、修复、验证和 `code-review-expert` 复核。若项目已有更具体的规范、lint、类型约束或组件约定，以项目内规范为准。
 
-## 1. Mono 边界
+## 1. Submodule 与 Mono 边界
 
-- 识别受影响 package、应用入口、页面路由和依赖方向。
+- 实现前必须读取 mono 根目录 `.gitmodules`，识别所有 submodule 的 `path`、`url` 和名称。
+- 源码搜索、文件修改、测试验证、git diff、分支读取和 code review 都必须定位到实际子 git 仓库；不要只在 mono 根仓执行。
+- 识别受影响子 git 仓库、package、应用入口、页面路由和依赖方向。
 - 不跨 package 引入未公开内部文件；优先使用已有导出入口、shared utilities、hooks 和类型。
 - 修改 shared package 时，检查已知调用方，不只验证当前 Bug 页面。
 - 不新增循环依赖、重复工具函数或局部私有实现来绕过现有抽象。
@@ -46,7 +48,7 @@
 
 ## 7. 验证要求
 
-- 优先运行最靠近改动的测试，再按影响范围运行 package 级 lint、typecheck 或 build。
+- 优先在发生变更的子 git 仓库内运行最靠近改动的测试，再按影响范围运行 package 级 lint、typecheck 或 build。
 - UI 行为修复需要本地浏览器验证关键路径，检查 Console、Network、DOM 状态和用户可见反馈。
 - 无法运行某类验证时，记录原因、影响和建议补验命令。
 - 验证命令必须真实执行后再声称通过；失败时区分已有失败与本次改动导致的失败。
@@ -55,7 +57,8 @@
 
 调用 `code-review-expert` 时，把以下重点写入评审请求：
 
-- 本次 diff 是否符合 mono package 边界和项目既有约定。
+- 本次 diff 是否符合子 git 仓库归属、mono package 边界和项目既有约定。
+- code review 是否在每个有 diff 的子 git 仓库内分别执行，避免只扫描 mono 根仓。
 - React hooks、状态来源、异步请求和渲染逻辑是否符合最佳实践。
 - 是否引入 JS 性能问题、重复请求、缓存污染或列表渲染退化。
 - 是否遗漏测试、验证或关键边界场景。
@@ -64,7 +67,7 @@
 
 ## 9. 飞书项目回写内容
 
-回写内容保持简短、可验收，只包含修复结论信息。准备回写前，先读取本地 git 变更涉及的各个子 git 仓库名及当前分支名；涉及多个仓库时在 `修复分支` 下逐行列出。
+回写内容保持简短、可验收，只包含修复结论信息。准备回写前，先读取本地 git 变更涉及的各个子 git 仓库名及当前分支名；涉及多个仓库时在 `修复分支` 下逐行列出。子 git 仓库名应来自 `.gitmodules` 的 submodule 名称或 path。
 
 ```markdown
 ### 问题原因
