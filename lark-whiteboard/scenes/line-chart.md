@@ -1,198 +1,214 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="icon" href="favicon.ico" />
-  <title></title>
-  <style>
-      * {
-          box-sizing: border-box;
-          padding: 0;
-          margin: 0;
-      }
+# 折线图
 
-      .open-platform-wrapper {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: center;
-          height: 100vh;
-          background-color: #ffffff;
-      }
+## Content 约束
 
-      .open-platform-icon {
-          width: 120px;
-          height: 120px;
-          display: block;
-      }
+- 数据点 ≤ 15
+- Y 轴必须有单位标注（如 "万元"、"%"）
+- 折线系列 ≤ 3（超过太密看不清）
 
-      .open-platform-desc {
-          margin-top: 16px;
-          line-height: 22px;
-          font-size: 14px;
-          color: #646a73;
-          text-align: center
-      }
+## Layout 选型
 
-      .open-platform-back {
-          border-radius: 6px;
-          font-size: 14px;
-          height: 32px;
-          line-height: 22px;
-          min-width: 80px;
-          padding: 4px 11px;
-          text-align: center;
-          text-decoration: none;
-          touch-action: manipulation;
-          transition: color .1s ease-in, background-color .1s ease-in, border-color .1s ease-in, width .2s ease-in;
-          user-select: none;
-          white-space: nowrap;
-          background: #1456f0;
-          border: 1px solid #1456f0;
-          color: #ffffff;
-          margin-top: 16px;
-      }
-  </style>
-</head>
-<body>
-<div class="open-platform-wrapper">
-  <img class="open-platform-icon"
-       src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTIwIiBoZWlnaHQ9IjEyMCIgdmlld0JveD0iMCAwIDEyMCAxMjAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHBhdGggZD0iTTEyLjkxMyA1NS4yNDRjLTUuNjMyIDIuOTUtOC4yNDYgNi4yODQtOC4yNDYgOS40NHY5LjcyYzAtMy4xNTYgMi42MTQtNi40OSA4LjI0Ni05LjQ0di05LjcyWm05NC4xNjMtMTIuMDg0di05LjcyNmM1LjkzNC0zLjE5IDguOTgxLTYuODkxIDguOTgxLTEwLjcyNXY5LjcyYzAgMy44NC0zLjA0NyA3LjU0My04Ljk4MSAxMC43MzJaIiBmaWxsPSIjMEMyOTZFIi8+PHBhdGggZD0iTTYwLjIyOSAxOS4wNTkgNDguNzMgNDkuOTIyIDYwLjM2NSA3Mi45MmwtOC40NzQgMjMuODczSDE2LjkyM2E0IDQgMCAwIDEtNC00VjIzLjA2YTQgNCAwIDAgMSA0LTRINjAuMjNaIiBmaWxsPSIjQkJCRkM0IiBmaWxsLW9wYWNpdHk9Ii40NSIvPjxwYXRoIGQ9Ik03MS40MDggMTkuMDU5IDYwLjAxMyA0OS45MjIgNzEuNDYgNzIuOTJsLTguMzI1IDIzLjg3M2gzOS45NDNhNCA0IDAgMCAwIDQtNFYyMy4wNmE0IDQgMCAwIDAtNC00aC0zMS42N1oiIGZpbGw9IiNCQkJGQzQiIGZpbGwtb3BhY2l0eT0iLjQ1Ii8+PHBhdGggZD0iTTIxLjkyMyAyNi4xYTIgMiAwIDEgMSAwIDQgMiAyIDAgMCAxIDAtNFptMyAyYTMgMyAwIDEgMC02IDAgMyAzIDAgMCAwIDYgMFptNi45MTUtMmEyIDIgMCAxIDEgMCA0IDIgMiAwIDAgMSAwLTRabTMgMmEzIDMgMCAxIDAtNiAwIDMgMyAwIDAgMCA2IDBabS0xNS43NjMgNy4zOTRhLjUuNSAwIDAgMSAuNS0uNWgzMS41ODFhLjUuNSAwIDAgMSAwIDFIMTkuNTc1YS41LjUgMCAwIDEtLjUtLjVabTQ4LjQ3NyAwYS41LjUgMCAwIDEgLjUtLjVoMzIuNDY1YS41LjUgMCAwIDEgMCAxSDY4LjA1MmEuNS41IDAgMCAxLS41LS41WiIgZmlsbD0iIzhGOTU5RSIvPjxwYXRoIGQ9Ik05OCAxMTFjOS45NDEgMCAxOC04LjA1OSAxOC0xOHMtOC4wNTktMTgtMTgtMThjLTkuOTQyIDAtMTggOC4wNTktMTggMThzOC4wNTggMTggMTggMThaIiBmaWxsPSIjRjgwIi8+PHBhdGggZD0iTTk3LjE4MSA4NC44MThhLjgxOC44MTggMCAwIDAtLjgxOC44MTl2OS44MThjMCAuNDUyLjM2Ni44MTguODE4LjgxOGgxLjYzN2EuODE4LjgxOCAwIDAgMCAuODE4LS44MTh2LTkuODE5YS44MTguODE4IDAgMCAwLS44MTgtLjgxOEg5Ny4xOFptMCAxMy4wOTJhLjgxOC44MTggMCAwIDAtLjgxOC44MTh2MS42MzZjMCAuNDUyLjM2Ni44MTguODE4LjgxOGgxLjYzN2EuODE4LjgxOCAwIDAgMCAuODE4LS44MTh2LTEuNjM2YS44MTguODE4IDAgMCAwLS44MTgtLjgxOUg5Ny4xOFoiIGZpbGw9IiNmZmYiLz48cGF0aCBkPSJNNC4wMjcgODUuMzFjMi40OSA1LjUxIDE0Ljc3IDkuOTQgNDEuNDUgOS45M3Y5LjcyMWMtMjYuNjguMDEtMzguOTYtNC40Mi00MS40NS05Ljkzdi05LjcyWm04NC44MS0yNy4yN2MxNy41Mi0yLjY5IDI1LjgwNy03LjAyNiAyNy4yLTExLjcxdjkuNzJjLS4zMyA0LjY3LTkuNjggOS4wMi0yNy4yIDExLjcxdi05LjcyWiIgZmlsbD0iIzMzNzBGRiIvPjxwYXRoIGQ9Ik04OS4yMzcgMTMuMDFjMTguMDU4IDAgMjYuOCAzLjI1IDI2LjggOS43MnY5LjcyYzAtNi40Ny04Ljc0Mi05LjcyLTI2LjgtOS43MnYtOS43MlptLTg0LjU3IDUxLjdjMCA2LjYgMTEuMzcgMTIuNDUgMzAuNDcgMTIuNDR2OS43MmMtMTkuMSAwLTMwLjQ3LTUuODQtMzAuNDctMTIuNDR2LTkuNzJaIiBmaWxsPSIjMDBENkI5Ii8+PC9zdmc+"
-       alt="">
-  <div class="open-platform-desc">The page does not exist.</div>
-  <a class="open-platform-back" href="/">Go to homepage</a>
-</div>
-<script>window.gfdatav1={"env":"prod","ver":"1.0.0.13","canary":0,"garrModules":null,"envName":"prod","region":"CN","idc":"lf","webServerCodeType":"DeployServerlessWebServer","runtime":"node","extra":{"canaryType":null}}</script><script>
+- **脚本生成坐标**（推荐）：用 .cjs 脚本计算数据点坐标和折线路径，脚本输出 JSON 文件后调用 `npx -y @larksuite/whiteboard-cli@^0.2.11` 渲染
 
-  function parseQueryString(queryString) {
-    // 移除开头的 "?"
-    if (queryString.charAt(0) === '?') {
-      queryString = queryString.substring(1);
-    }
+## Layout 规则
 
-    var params = {};
-    if (!queryString) return params;
+- 白板坐标系 Y 轴向下为正，图表"底部原点"拥有最大 Y 值，数据点向上分布时 Y 减小
+- 数据点用小 ellipse 标记（width: 12, height: 12）
+- 折线用 connector straight 连接相邻数据点，endArrow: "none"
+- 坐标轴用 connector 直线，末端带箭头（endArrow: "arrow"）
+- 格线用虚线 connector（lineStyle: "dashed"，endArrow: "none"）
+- 刻度线短横线 connector（endArrow: "none"）
+- 数值标注放在数据点上方
+- 类别标签放在 X 轴下方，居中对齐数据点
 
-    // 分割参数对
-    var paramPairs = queryString.split('&');
+## 坐标与尺寸计算指南
 
-    for (var i = 0; i < paramPairs.length; i++) {
-      var paramPair = paramPairs[i].split('=');
-      var key = decodeURIComponent(paramPair[0]);
-      var value = paramPair.length > 1 ? decodeURIComponent(paramPair[1]) : '';
+白板坐标系中，**X 轴向右为正，Y 轴向下为正**。图表的"底部原点"拥有最大的 Y 坐标，数据点向上分布时 Y 坐标减小。
 
-      // 处理重复参数（转为数组）
-      if (params[key] === undefined) {
-        params[key] = value;
-      } else if (!Array.isArray(params[key])) {
-        params[key] = [params[key], value];
-      } else {
-        params[key].push(value);
-      }
-    }
+1. **确定图表区域**：
+   - 设定图表区高度 `chartHeight` 和宽度 `chartWidth`
+   - 设定左下角坐标原点 `(originX, originY)`
+   - 示例：originX=80, originY=480, chartWidth=900, chartHeight=400
+2. **Y 轴范围自适应**：
+   - 找出数据最小值 `dataMin` 和最大值 `dataMax`
+   - yMin 不一定为 0：若数据集中在 80-120，Y 轴从 0 开始会让折线挤在顶部一小段区域
+   - 推荐：yMin = 向下取整到合适刻度（如 dataMin=82 → yMin=80），yMax = 向上取整（如 dataMax=118 → yMax=120）
+   - 当数据波动极小时（如 98-102），适当扩大范围避免折线过于平坦
+3. **数据点坐标计算**：
+   - X 坐标：在可用宽度内均匀分布。`pointX = originX + (i / (pointCount - 1)) * chartWidth`
+   - Y 坐标：按比例映射到高度。`pointY = originY - ((value - yMin) / (yMax - yMin)) * chartHeight`
+   - ellipse 定位：`ellipseX = pointX - 6, ellipseY = pointY - 6`（圆心对齐数据点）
+4. **连线逻辑**：
+   - 用 connector straight 将相邻数据点连接
+   - `from` = 点[i] 的 (pointX, pointY)，`to` = 点[i+1] 的 (pointX, pointY)
+   - startArrow: "none", endArrow: "none"
+5. **Y 轴刻度计算**：
+   - 将 yMin 到 yMax 等分为 4-5 个刻度
+   - 每个刻度的 Y 坐标：`gridY = originY - ((tickValue - yMin) / (yMax - yMin)) * chartHeight`
 
-    return params;
-  }
+## 完整 JSON 示例
 
-  function getLocale() {
-    var zhLang = 'zh-CN';
-    var enLang = 'en-US';
+以下示例：4 个数据点，数据 [120, 200, 150, 180]，yMin=100, yMax=220，originX=80, originY=480, chartWidth=900, chartHeight=400。
 
-    var queryLang = parseQueryString(window.location.search).lang;
-    var cookieLang = getCookieLocale();
-    var lang = enLang;
+- 刻度：100, 130, 160, 190, 220（每 30 一格）
+- 点0 (120): pointX=80, pointY=480-((120-100)/120)*400=480-66.7=413
+- 点1 (200): pointX=80+300=380, pointY=480-((200-100)/120)*400=480-333.3=147
+- 点2 (150): pointX=80+600=680, pointY=480-((150-100)/120)*400=480-166.7=313
+- 点3 (180): pointX=80+900=980, pointY=480-((180-100)/120)*400=480-266.7=213
 
-    <!--从cookie中取值-->
-    function getCookieLocale() {
-      var locale = '';
-      var cookies = document.cookie.split('; ');
-      var loclaeKey = 'open_locale';
+```json
+{
+  "version": 2,
+  "nodes": [
+    { "type": "rect", "x": 0, "y": 0, "width": 1100, "height": 580 },
 
-      for (var i = 0; i < cookies.length; i++) {
-        var cookie = cookies[i].trim();
-        var cookieArr = cookie.split('=');
-        if (cookieArr[0] === loclaeKey) {
-          locale = cookieArr[1];
-          break;
-        }
-      }
-      return locale;
-    }
+    { "type": "text", "x": 80, "y": 10, "width": 900, "height": "fit-content",
+      "text": "季度销售额趋势", "fontSize": 24, "textAlign": "center" },
 
-    function setLocaleCookie(lang) {
-      var date = new Date();
-      // 300天到期
-      date.setTime(date.getTime() + (300 * 24 * 60 * 60 * 1000));
-      var expires = 'expires=' + date.toUTCString();
-      document.cookie = 'open_locale=' + lang + '; ' + expires + '; path=/;';
-    }
+    { "type": "text", "x": 10, "y": 40, "width": 60, "height": "fit-content",
+      "text": "万元", "fontSize": 12, "textAlign": "center" },
 
-    // 获取浏览器默认语言
-    if (navigator.language.indexOf('en') !== -1) {
-      lang = enLang;
-    } else if (navigator.language.indexOf('zh') !== -1) {
-      lang = zhLang;
-    }
-    if (cookieLang === enLang) {
-      lang = enLang;
-    } else if (cookieLang === zhLang) {
-      lang = zhLang;
-    }
-    if (queryLang === enLang) {
-      lang = enLang;
-    } else if (queryLang === zhLang) {
-      lang = zhLang;
-    }
-    // 设置cookie
-    setLocaleCookie(lang);
-    return lang;
-  }
+    { "type": "connector", "connector": {
+      "from": { "x": 80, "y": 480 }, "to": { "x": 80, "y": 55 },
+      "lineShape": "straight", "lineWidth": 2, "endArrow": "arrow"
+    }},
+    { "type": "connector", "connector": {
+      "from": { "x": 80, "y": 480 }, "to": { "x": 1000, "y": 480 },
+      "lineShape": "straight", "lineWidth": 2, "endArrow": "arrow"
+    }},
 
-  // 根据域名获取当前brand
-  function isLarkDomain() {
-    var defaultBrandMap = {
-      lark: ['larksuite'],
-      feishu: ['feishu', 'larkoffice', 'larkenterprise'],
-    };
-    const { hostname } = window.location;
+    { "type": "connector", "connector": {
+      "from": { "x": 70, "y": 480 }, "to": { "x": 80, "y": 480 },
+      "lineShape": "straight", "lineWidth": 1,
+      "startArrow": "none", "endArrow": "none"
+    }},
+    { "type": "text", "x": 20, "y": 470, "width": 50, "height": 20,
+      "text": "100", "fontSize": 12, "textAlign": "right" },
 
-    if (defaultBrandMap.feishu.some((item) => hostname.includes(item))) {
-      return false;
-    }
+    { "type": "connector", "connector": {
+      "from": { "x": 70, "y": 380 }, "to": { "x": 80, "y": 380 },
+      "lineShape": "straight", "lineWidth": 1,
+      "startArrow": "none", "endArrow": "none"
+    }},
+    { "type": "text", "x": 20, "y": 370, "width": 50, "height": 20,
+      "text": "130", "fontSize": 12, "textAlign": "right" },
+    { "type": "connector", "connector": {
+      "from": { "x": 80, "y": 380 }, "to": { "x": 980, "y": 380 },
+      "lineShape": "straight", "lineWidth": 1, "lineStyle": "dashed",
+      "startArrow": "none", "endArrow": "none"
+    }},
 
-    if (defaultBrandMap.lark.some((item) => hostname.includes(item))) {
-      return true;
-    }
+    { "type": "connector", "connector": {
+      "from": { "x": 70, "y": 280 }, "to": { "x": 80, "y": 280 },
+      "lineShape": "straight", "lineWidth": 1,
+      "startArrow": "none", "endArrow": "none"
+    }},
+    { "type": "text", "x": 20, "y": 270, "width": 50, "height": 20,
+      "text": "160", "fontSize": 12, "textAlign": "right" },
+    { "type": "connector", "connector": {
+      "from": { "x": 80, "y": 280 }, "to": { "x": 980, "y": 280 },
+      "lineShape": "straight", "lineWidth": 1, "lineStyle": "dashed",
+      "startArrow": "none", "endArrow": "none"
+    }},
 
-    if (window.domainBrand) {
-      return window.domainBrand === 'lark';
-    }
+    { "type": "connector", "connector": {
+      "from": { "x": 70, "y": 180 }, "to": { "x": 80, "y": 180 },
+      "lineShape": "straight", "lineWidth": 1,
+      "startArrow": "none", "endArrow": "none"
+    }},
+    { "type": "text", "x": 20, "y": 170, "width": 50, "height": 20,
+      "text": "190", "fontSize": 12, "textAlign": "right" },
+    { "type": "connector", "connector": {
+      "from": { "x": 80, "y": 180 }, "to": { "x": 980, "y": 180 },
+      "lineShape": "straight", "lineWidth": 1, "lineStyle": "dashed",
+      "startArrow": "none", "endArrow": "none"
+    }},
 
-    return false;
-  }
+    { "type": "connector", "connector": {
+      "from": { "x": 70, "y": 80 }, "to": { "x": 80, "y": 80 },
+      "lineShape": "straight", "lineWidth": 1,
+      "startArrow": "none", "endArrow": "none"
+    }},
+    { "type": "text", "x": 20, "y": 70, "width": 50, "height": 20,
+      "text": "220", "fontSize": 12, "textAlign": "right" },
+    { "type": "connector", "connector": {
+      "from": { "x": 80, "y": 80 }, "to": { "x": 980, "y": 80 },
+      "lineShape": "straight", "lineWidth": 1, "lineStyle": "dashed",
+      "startArrow": "none", "endArrow": "none"
+    }},
 
-  var isLarkBrand = isLarkDomain();
+    { "type": "connector", "connector": {
+      "from": { "x": 80, "y": 413 }, "to": { "x": 380, "y": 147 },
+      "lineShape": "straight", "lineWidth": 3,
+      "startArrow": "none", "endArrow": "none"
+    }},
+    { "type": "connector", "connector": {
+      "from": { "x": 380, "y": 147 }, "to": { "x": 680, "y": 313 },
+      "lineShape": "straight", "lineWidth": 3,
+      "startArrow": "none", "endArrow": "none"
+    }},
+    { "type": "connector", "connector": {
+      "from": { "x": 680, "y": 313 }, "to": { "x": 980, "y": 213 },
+      "lineShape": "straight", "lineWidth": 3,
+      "startArrow": "none", "endArrow": "none"
+    }},
 
-  var config = {
-    'zh-CN': {
-      'desc': '抱歉，您访问的页面不存在',
-      'back': '返回首页',
-      'title': (isLarkBrand ? 'Lark' : '飞书') + '开放平台',
-    },
-    'en-US': {
-      'desc': 'The page does not exist.',
-      'back': 'Go to homepage',
-      'title': (isLarkBrand ? 'Lark': 'Feishu') + ' Open Platform',
-    },
-  };
-  var locale = getLocale();
-  var descObj = document.querySelector('.open-platform-desc');
-  var backObj = document.querySelector('.open-platform-back');
-  descObj.innerHTML = config[locale].desc;
-  backObj.innerHTML = config[locale].back;
-  document.title = config[locale].title;
+    { "type": "ellipse", "id": "pt-0", "x": 74, "y": 407,
+      "width": 12, "height": 12 },
+    { "type": "text", "x": 55, "y": 383,
+      "width": 50, "height": 20,
+      "text": "120", "fontSize": 14, "textAlign": "center" },
+    { "type": "text", "x": 50, "y": 490,
+      "width": 60, "height": 30,
+      "text": "Q1", "fontSize": 14, "textAlign": "center" },
 
-</script>
-</body>
-</html>
+    { "type": "ellipse", "id": "pt-1", "x": 374, "y": 141,
+      "width": 12, "height": 12 },
+    { "type": "text", "x": 355, "y": 117,
+      "width": 50, "height": 20,
+      "text": "200", "fontSize": 14, "textAlign": "center" },
+    { "type": "text", "x": 350, "y": 490,
+      "width": 60, "height": 30,
+      "text": "Q2", "fontSize": 14, "textAlign": "center" },
+
+    { "type": "ellipse", "id": "pt-2", "x": 674, "y": 307,
+      "width": 12, "height": 12 },
+    { "type": "text", "x": 655, "y": 283,
+      "width": 50, "height": 20,
+      "text": "150", "fontSize": 14, "textAlign": "center" },
+    { "type": "text", "x": 650, "y": 490,
+      "width": 60, "height": 30,
+      "text": "Q3", "fontSize": 14, "textAlign": "center" },
+
+    { "type": "ellipse", "id": "pt-3", "x": 974, "y": 207,
+      "width": 12, "height": 12 },
+    { "type": "text", "x": 955, "y": 183,
+      "width": 50, "height": 20,
+      "text": "180", "fontSize": 14, "textAlign": "center" },
+    { "type": "text", "x": 950, "y": 490,
+      "width": 60, "height": 30,
+      "text": "Q4", "fontSize": 14, "textAlign": "center" }
+  ]
+}
+```
+
+坐标推导验证：
+- 点0 (Q1, 120): pointX = 80 + (0/3)*900 = 80, pointY = 480 - ((120-100)/120)*400 = 413
+- 点1 (Q2, 200): pointX = 80 + (1/3)*900 = 380, pointY = 480 - ((200-100)/120)*400 = 147
+- 点2 (Q3, 150): pointX = 80 + (2/3)*900 = 680, pointY = 480 - ((150-100)/120)*400 = 313
+- 点3 (Q4, 180): pointX = 80 + (3/3)*900 = 980, pointY = 480 - ((180-100)/120)*400 = 213
+- ellipse 定位：ellipseX = pointX - 6, ellipseY = pointY - 6
+
+## 陷阱
+
+- Y 轴范围不合理：若数据集中在 80-120，Y 轴从 0 到 120 会让折线挤在顶部一小段区域，应设 yMin 接近数据最小值
+- 缺 Y 轴单位标注，读者无法理解数值含义
+- 数据点太密时标注互相遮挡（超过 10 个点考虑隔一个标注一次）
+- 折线段忘记设 endArrow: "none"，默认带箭头
+- 多系列时折线颜色相近难以区分，应使用对比度高的不同色系
+
+此场景必须用 .cjs 脚本生成。Agent 使用时只需修改 `data` 数组，其余坐标与折线生成全自动计算。
+
+```javascript
+const { writeFileSync } = require('fs');
+```
