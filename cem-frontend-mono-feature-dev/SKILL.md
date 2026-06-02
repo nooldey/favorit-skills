@@ -42,6 +42,17 @@ description: Use when a CEM 飞书项目 task/story/project.feishu.cn link requi
 - TDD 测试脚本的维护目录必须结合项目实际约定设计：优先遵循已有 `test`、`tests`、`spec`、`__tests__` 或同目录 `*.test.*`/`*.spec.*` 模式；没有现成约定时，再在目标包内新建清晰的单元测试专用目录，并在计划文档中记录代码路径到测试路径的映射和最小复跑命令。
 - 完成多个模块代码开发后、准备进入总结之前，必须先调用一次 `code-review-expert` 对本次变更进行评审；评审发现的问题必须逐一处理或明确解释暂不处理原因。
 
+## “确认推送代码”指令
+
+当用户明确说“确认推送代码”、或明确表示当前修改可以提交并推送到远端 git 仓库时，立即执行以下动作，不再二次确认：
+
+1. 只处理已经明确涉及的 git 子仓库；若涉及范围不明确，先从当前变更和计划文档中识别实际有源码改动的子仓库。外层 mono 的 `docs/plans`、`branches.json`、skill 文档等不属于子仓库源码提交，除非用户明确要求提交外层仓库。
+2. 对每个子仓库执行提交前检查：`git rev-parse --abbrev-ref HEAD`、`git status --short --branch`、`git remote get-url origin`、目标文件 diff、`git diff --check`。必须确认当前分支不是 `HEAD`，远端 `origin` 存在，且只提交本次目标文件。
+3. 根据当前分支名生成 commit message：默认格式为 `<version_prefix> feat: <本次变更摘要>`。若当前分支为 `vX.Y.Z_zws` 或 `vX.Y.Z-xxx`，`version_prefix` 使用远端 hook 通常可接受的 semver 主体 `vX.Y.Z`；若远端仓库允许完整分支名，可使用完整当前分支名。示例：分支 `v5.18.0_zws` 的提交信息优先用 `v5.18.0 feat: 标签卡片展示用户观点`，避免 GitLab hook 因 `_zws` 拒绝。
+4. 逐子仓库执行：`git add <目标文件>`、`git commit -m "<message>"`、`git push -u origin <current_branch>`。如果 push 因 commit message hook 被拒绝，允许在该分支尚未成功推送对应提交时使用 `git commit --amend -m "<hook-compatible-message>"` 后重新 `git push`；不得改写已经成功推送的远端历史，除非用户明确批准 force push。
+5. 推送后必须验证：`git status --short --branch` 显示本地与 upstream 同步、`git log -1 --pretty=format:'%h %s'` 符合规范、`git ls-remote --heads origin <current_branch>` 能查到远端分支。
+6. 最终输出按子仓库列出：包名、路径、远端分支、commit hash、commit message、push 是否成功；同时说明未提交的外层文件或未纳入范围的变更。
+
 ## 执行规范
 
 完整功能开发流程、计划文档模板、代码开发要求和输出格式见：
@@ -56,6 +67,7 @@ description: Use when a CEM 飞书项目 task/story/project.feishu.cn link requi
 - 已读取/处理的飞书项目 Task/Story。
 - 新增的 `docs/plans/*-feature-*.md` 计划文档路径。
 - 受影响 git 子模块的分支创建结果：原 tag、原 HEAD、新分支名、是否已同步 `branches.json`。
+- 若用户触发“确认推送代码”：每个子仓库的远端分支、commit hash、commit message、push 验证结果，以及未纳入提交范围的外层文件说明。
 - 功能实现摘要、主要源码改动范围、新增/更新的 TDD 单元测试脚本，以及源码路径到测试路径的映射。
 - 已执行的验证命令及结果；若未能验证，说明原因。
 - `code-review-expert` 评审结论及处理情况；若涉及多个 git submodule，必须按受影响子仓库分别给出评审结论。
