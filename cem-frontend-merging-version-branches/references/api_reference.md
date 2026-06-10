@@ -3,7 +3,7 @@
 ## 版本记录
 
 - 远端版本日志：
-  `https://yunting-static-1251101074.cos.ap-shanghai.myqcloud.com/vers/prod-versions.json`
+  `https://yunting-static-1251101074.cos.ap-shanghai.myqcloud.com/vers/dev-versions.json`
 - 读取版本对象时，直接看该版本的 `extends` 和 `branches`。
 
 ## 角色定义
@@ -32,11 +32,12 @@ v<命名依据版本主版本>.<命名依据版本次版本+1>.0_mix_<git user.n
 - 分支和 tag 信息必须以远端版本记录为准，不能臆想。
 - 合并基线和新分支命名依据不能混为一谈。
 - `buildMergeManifest.mjs` 输出里 `baselineRef` 为空时，表示该包要用目标 checkout 的实际 `HEAD` 作为合并基线。
+- 本地处理结束后，推送到远端 `origin` 前必须再次确认，而且要在各子仓目录内分别执行，不能在主仓目录统一推送。
 
 ## 脚本
 
 - `scripts/readVersionLog.mjs`：读取远端版本记录。
-- `scripts/buildMergeManifest.mjs`：生成最终待合并清单、合并基线和命名依据。
+- `scripts/buildMergeManifest.mjs`：生成最终待合并清单，输出 `name`、`packageName`、`sourceVersion`、`sourceRef`、`targetVersion`、`baselineRef`、`branchNameBaseRef`、`branchName`。
 - `scripts/createBaseBranch.mjs`：创建基础新分支。
 - `scripts/mergeSubmoduleTag.mjs`：合并 tag。
 

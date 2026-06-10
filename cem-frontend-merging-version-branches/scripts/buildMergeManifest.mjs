@@ -212,7 +212,7 @@ function buildInheritanceChain(log, version) {
  * @param {string} targetVersion 目标版本。
  * @param {string} env 环境名称。
  * @param {string} userName git 用户名。
- * @returns {Promise<Array<{packageName: string, sourceVersion: string, sourceRef: string, baselineRef: string|null, baselineSource: string, branchNameBaseRef: string, branchName: string}>>}
+ * @returns {Promise<Array<{name: string, packageName: string, sourceVersion: string, sourceRef: string, targetVersion: string, baselineRef: string|null, baselineSource: string, branchNameBaseRef: string, branchName: string}>>}
  */
 async function buildMergeManifest(versions, targetVersion, env = 'prod', userName = '') {
   const log = await readVersionLog(env);
@@ -240,9 +240,11 @@ async function buildMergeManifest(versions, targetVersion, env = 'prod', userNam
   return Array.from(latestByPackage.entries()).map(([packageName, sourceInfo]) => {
     const { baselineRef, baselineSource, branchNameBaseRef } = resolvePackageBaseline(targetBranches, sourceInfo, packageName);
     return {
+      name: packageName,
       packageName,
       sourceVersion: sourceInfo.sourceVersion,
       sourceRef: sourceInfo.sourceRef,
+      targetVersion,
       baselineRef,
       baselineSource,
       branchNameBaseRef,

@@ -16,6 +16,12 @@ description: Use when a `cem-frontend-mono` monorepo or other mono project needs
 - 最终待合并清单：按源版本及其 `extends` 链路里最终生效的 `branches` key 归并，目标版本缺 key 也不能忽略该包。
 - 命名依据版本：用于生成新分支名的版本引用，优先取源版本链 `sourceRef` 和目标版本同包 `branches` 记录中的较高者；若目标版本没有该 key，就沿用源版本链 `sourceRef`。
 
+## 确认点
+
+1. 先输出待处理子模块清单，至少包含：`name`、来源版本、来源分支、目标版本/tag、新分支名；用户确认清单无误后，才允许继续。
+2. 本地创建或合并过程中，只要遇到错误、冲突、权限阻碍或任何需要继续前确认的情况，必须暂停并等待用户确认后再继续。
+3. 本地创建和合并全部完成后，推送到远端 `origin` 前必须再次确认；推送动作必须在各子仓目录内单独执行，不能在主仓根目录统一推送。
+
 ## 红线
 
 - 远端版本日志拉不下来时，必须先解决拉取问题，不能用本地数据兜底。
@@ -42,6 +48,7 @@ description: Use when a `cem-frontend-mono` monorepo or other mono project needs
 13. 如果出现冲突，立刻停止，报告子模块路径、冲突文件和当前分支名，不要自行猜测修复。
 14. 如果没有冲突，提交合并结果，再继续下一个包。
 15. 所有 key 处理完后，执行 `yarn branches record` 记录当前分支信息。
+16. 本地处理完毕后，先按子仓逐个确认，再在对应子仓目录内执行 `git push origin <新分支名>` 推送到远端 `origin`；不要在主仓目录执行统一推送。
 
 ## 规则
 
