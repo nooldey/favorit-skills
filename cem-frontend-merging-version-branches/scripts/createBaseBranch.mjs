@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-const { spawn } = require('child_process');
+import { spawn } from 'node:child_process';
 
 /**
  * 异步执行命令。
@@ -86,15 +86,15 @@ async function main() {
   await createBaseBranch(cwd, branchName);
 }
 
-if (require.main === module) {
+if (import.meta.url === `file://${process.argv[1]}`) {
   main().catch((error) => {
     console.error(error.message);
     process.exit(1);
   });
 }
 
-module.exports = {
-  runCommandAsync,
-  parseArgs,
+export {
   createBaseBranch,
+  parseArgs,
+  runCommandAsync,
 };

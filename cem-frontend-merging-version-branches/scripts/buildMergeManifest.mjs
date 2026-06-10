@@ -87,17 +87,64 @@ function deriveNextMixBranchName(baseRef, userName) {
 }
 
 /**
- * 解析包的基线引用。
+ * 解析版本引用中的主次修订号。
+ * @param {string} ref 版本引用。
+ * @returns {{major: number, minor: number, patch: number} | null} 解析结果。
+ */
+function parseVersionRef(ref) {
+  const match = String(ref).match(/^v(\d+)\.(\d+)\.(\d+)/);
+  if (!match) {
+    return null;
+  }
+
+  return {
+    major: Number(match[1]),
+    minor: Number(match[2]),
+    patch: Number(match[3]),
+  };
+}
+
+/**
+ * 比较两个版本引用的高低。
+ * @param {string} left 左侧版本引用。
+ * @param {string} right 右侧版本引用。
+ * @returns {number} 左侧更低返回负数，相等返回 0，更高返回正数。
+ */
+function compareVersionRef(left, right) {
+  const leftRef = parseVersionRef(left);
+  const rightRef = parseVersionRef(right);
+
+  if (!leftRef || !rightRef) {
+    throw new Error(`Invalid version ref for comparison: ${left} / ${right}`);
+  }
+
+  if (leftRef.major !== rightRef.major) {
+    return leftRef.major - rightRef.major;
+  }
+
+  if (leftRef.minor !== rightRef.minor) {
+    return leftRef.minor - rightRef.minor;
+  }
+
+  return leftRef.patch - rightRef.patch;
+}
+
+/**
+ * 解析包的合并基线和命名基线。
  * @param {Record<string, string>} targetBranches 目标版本的 branches。
  * @param {{sourceRef: string}} sourceInfo 包的最终源信息。
  * @param {string} packageName 包名。
- * @returns {{baselineRef: string, baselineSource: string}} 基线信息。
+ * @returns {{baselineRef: string|null, baselineSource: string, branchNameBaseRef: string}} 基线信息。
  */
 function resolvePackageBaseline(targetBranches, sourceInfo, packageName) {
-  const baselineRef = targetBranches[packageName] || sourceInfo.sourceRef;
-  const baselineSource = targetBranches[packageName] ? 'target-version' : 'historical-source';
+  const targetRef = targetBranches[packageName] || '';
+  const baselineRef = targetRef || null;
+  const baselineSource = targetRef ? 'target-version' : 'target-checkout';
+  const branchNameBaseRef = targetRef
+    ? (compareVersionRef(sourceInfo.sourceRef, targetRef) >= 0 ? sourceInfo.sourceRef : targetRef)
+    : sourceInfo.sourceRef;
 
-  return { baselineRef, baselineSource };
+  return { baselineRef, baselineSource, branchNameBaseRef };
 }
 
 /**
@@ -165,7 +212,7 @@ function buildInheritanceChain(log, version) {
  * @param {string} targetVersion 目标版本。
  * @param {string} env 环境名称。
  * @param {string} userName git 用户名。
- * @returns {Promise<Array<{packageName: string, sourceVersion: string, sourceRef: string, baselineRef: string, baselineSource: string, branchName: string}>>}
+ * @returns {Promise<Array<{packageName: string, sourceVersion: string, sourceRef: string, baselineRef: string|null, baselineSource: string, branchNameBaseRef: string, branchName: string}>>}
  */
 async function buildMergeManifest(versions, targetVersion, env = 'prod', userName = '') {
   const log = await readVersionLog(env);
@@ -191,14 +238,15 @@ async function buildMergeManifest(versions, targetVersion, env = 'prod', userNam
   }
 
   return Array.from(latestByPackage.entries()).map(([packageName, sourceInfo]) => {
-    const { baselineRef, baselineSource } = resolvePackageBaseline(targetBranches, sourceInfo, packageName);
+    const { baselineRef, baselineSource, branchNameBaseRef } = resolvePackageBaseline(targetBranches, sourceInfo, packageName);
     return {
       packageName,
       sourceVersion: sourceInfo.sourceVersion,
       sourceRef: sourceInfo.sourceRef,
       baselineRef,
       baselineSource,
-      branchName: deriveNextMixBranchName(baselineRef, finalUserName),
+      branchNameBaseRef,
+      branchName: deriveNextMixBranchName(branchNameBaseRef, finalUserName),
     };
   });
 }
