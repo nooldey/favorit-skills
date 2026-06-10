@@ -5,7 +5,7 @@
 版本信息从远端 JSON 读取：
 
 ```text
-https://yunting-static-1251101074.cos.ap-shanghai.myqcloud.com/vers/prod-versions.json?timestamp=1780906190234
+https://yunting-static-1251101074.cos.ap-shanghai.myqcloud.com/vers/prod-versions.json
 ```
 
 处理前先从这里取一个或多个历史版本对应的版本对象，再沿 `extends` 还原继承链。
