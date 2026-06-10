@@ -8,7 +8,16 @@
 https://yunting-static-1251101074.cos.ap-shanghai.myqcloud.com/vers/prod-versions.json?timestamp=1780906190234
 ```
 
-处理前先从这里取目标版本和源版本对应的版本对象，再读取该对象的 `branches` 属性，按 key 逐个合并。
+处理前先从这里取一个或多个历史版本对应的版本对象，再沿 `extends` 还原继承链。
+
+## 归并规则
+
+1. 先按 `extends` 把输入版本排成从旧到新的继承链。
+2. 同一个包名如果在多层版本里重复出现，只取继承链上更高版本的 `branches` 值。
+3. 如果两个输入版本之间无法通过 `extends` 证明祖先-后代关系，先中断，不要自行拼链。
+4. 最终得到的生效包列表，先整理成待合并清单并输出给用户。
+5. 清单至少包含：包名、子模块路径、来源版本、来源分支/tag。
+6. 用户确认清单后，再按 key 逐个合并到目标版本。
 
 ## 包路径定位
 
@@ -22,29 +31,25 @@ https://yunting-static-1251101074.cos.ap-shanghai.myqcloud.com/vers/prod-version
 分支名格式：
 
 ```text
-v<主版本>.<次版本+1>.0_<git user.name>
+v<主版本>.<次版本+1>.0_mix_<git user.name>
 ```
 
 示例：
 
-- `v2.1.3` -> `v2.2.0_zhangsan`
+- `v2.1.3` -> `v2.2.0_mix_zhangsan`
 - 只增加第二段版本号，最后一段固定为 `0`
 
-## 合并顺序
+## 合并前提
 
-1. 根目录执行 `yarn checkout --env=dev --ver=<源版本>`
-2. 对每个 key 进入对应子模块目录
-3. 基于当前 `HEAD` 建分支
-4. 合并指定 tag 或 release 分支
-5. 无冲突则提交
-6. 继续下一个 key
-7. 全部完成后执行 `yarn branches record`
+- `yarn checkout` 后必须先核对 `supports/engineering/rspack/publics/versions.json`，版本不对就中断。
+- 只处理继承链上最终生效的 `branches` 里的 key。
+- 只使用 `packageSubmodules` 可解析到的路径。
 
 ## 冲突处理
 
-- 只要出现冲突就暂停
-- 报告冲突文件、子模块路径、当前分支名
-- 不自动猜测修复方案
+- 只要出现冲突就暂停。
+- 报告冲突文件、子模块路径、当前分支名。
+- 不自动猜测修复方案。
 
 ## 建议检查
 
