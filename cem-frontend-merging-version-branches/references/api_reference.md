@@ -16,7 +16,7 @@ https://yunting-static-1251101074.cos.ap-shanghai.myqcloud.com/vers/prod-version
 2. 同一个包名如果在多层版本里重复出现，只取继承链上更高版本的 `branches` 值。
 3. 如果两个输入版本之间无法通过 `extends` 证明祖先-后代关系，先中断，不要自行拼链。
 4. 最终得到的生效包列表，先整理成待合并清单并输出给用户。
-5. 清单至少包含：包名、子模块路径、来源版本、来源分支/tag。
+5. 清单至少包含：包名、子模块路径、来源版本、来源分支/tag、目标版本中该包的基线分支/tag。
 6. 用户确认清单后，再按 key 逐个合并到目标版本。
 
 ## 包路径定位
@@ -31,7 +31,7 @@ https://yunting-static-1251101074.cos.ap-shanghai.myqcloud.com/vers/prod-version
 分支名格式：
 
 ```text
-v<主版本>.<次版本+1>.0_mix_<git user.name>
+v<该包基线版本主版本>.<该包基线版本次版本+1>.0_mix_<git user.name>
 ```
 
 示例：
@@ -44,6 +44,7 @@ v<主版本>.<次版本+1>.0_mix_<git user.name>
 - `yarn checkout` 后必须先核对 `supports/engineering/rspack/publics/versions.json`，版本不对就中断。
 - 只处理继承链上最终生效的 `branches` 里的 key。
 - 只使用 `packageSubmodules` 可解析到的路径。
+- 新分支必须基于目标版本里该包记录的 `branches` 值起算，而不是当前工作区里已有分支名。
 
 ## 冲突处理
 
