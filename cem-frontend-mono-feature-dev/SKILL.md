@@ -17,12 +17,16 @@ description: Use when a CEM 飞书项目 Task/Story link requires frontend mono 
 - TDD 单测仅在功能开发完成后、用户明确同意时补充或更新；用户否定时必须绕过 TDD。
 - 需求涉及 React/Next.js 时，需要按 `vercel-react-best-practices` 自查。
 
+## 红线：禁止非核心任务外溢
+
+除非是本次功能开发直接关联且为满足验收标准必需的代码变更，否则严禁计划或执行非核心任务，包括但不限于：无关代码优化、类型补齐、样式优化补齐、命名整理、顺手重构、无关 lint 修复。发现这类问题只可记录为“非本次范围”，不得纳入计划、实现或评审范围。
+
 ## 核心流程
 
 1. 先用 `cem-feishu-project-basic` 规范化输入。
 2. 识别受影响的 git submodule 和相关包。
-3. 在 `docs/plans` 新建 feature 计划。
-4. 按计划实现功能代码；不得主动触发 TDD 流程或创建 TDD 相关测试文件。
+3. 在 `docs/plans` 新建 feature 计划，计划范围必须只覆盖本次功能验收所需变更。
+4. 按计划实现功能代码；不得主动触发 TDD 流程或创建 TDD 相关测试文件；不得顺手执行无关优化、类型补齐、样式补齐或重构。
 5. 功能开发完成后，主动询问用户是否触发或执行 TDD：用户同意才执行 TDD 相关动作；用户否定则绕过 TDD。
 6. 若涉及 React/Next.js，使用 `vercel-react-best-practices` 进行实现与审查自查。
 7. 最后调用 `code-review-expert`，按子模块汇总验证与结果。
