@@ -17,7 +17,7 @@ description: Use when any CEM 飞书项目/Feishu Project/project.feishu.cn requ
 
 访问飞书项目数据时严格执行：
 
-1. **Meegle CLI first**：工作项、视图、评论、工时、关联、节点、图表、人员排期等先用 `meegle`。命令参考 [guidance/meegle-cli-guide.md](guidance/meegle-cli-guide.md)。
+1. **Meegle CLI first**：工作项、视图、评论、工时、关联、节点、图表、人员排期等先用 `meegle` skill / Meegle CLI；命令、参数和字段协议以 `meegle` skill 为准。基础层只保留工具边界，见 [guidance/meegle-cli-guide.md](guidance/meegle-cli-guide.md)。
 2. **FeishuProjectMCP after retries**：同一目标 Meegle 调用失败后，调整参数或换等价命令重试；累计 2 次仍失败才切 FeishuProjectMCP，并记录失败原因。
 3. **lark-cli only for auxiliary Feishu resources**：`lark-cli` 当前没有飞书项目专用命令，不作为工作项数据兜底。仅在读取项目外部关联的飞书文档、云空间、表格、Base、通讯录、IM、日历、任务、邮件，或探索原生 OpenAPI 时使用。
 
@@ -80,4 +80,4 @@ description: Use when any CEM 飞书项目/Feishu Project/project.feishu.cn requ
 | 文件 | 何时读取 |
 |---|---|
 | [guidance/patterns.md](guidance/patterns.md) | 需要 Prompt 模板或任务类型示例 |
-| [guidance/meegle-cli-guide.md](guidance/meegle-cli-guide.md) | 需要 Meegle 命令、字段格式或工具边界 |
+| [guidance/meegle-cli-guide.md](guidance/meegle-cli-guide.md) | 需要确认 Meegle 与 FeishuProjectMCP / `lark-cli` 的工具边界；具体 Meegle 命令和 API 说明请使用 `meegle` skill |
