@@ -2,7 +2,7 @@
 
 ## Feature 计划文档
 
-计划文件必须放在 `docs/plans`，文件名必须包含 `-feature-`。建议格式：
+计划文件优先放在既有 `docs/plans`，文件名必须包含 `-feature-`。若目录不存在，必须先取得用户同意再创建。建议格式：
 
 ```text
 YYYYMMDD-<short-slug>-feature-plan.md
@@ -50,9 +50,8 @@ YYYYMMDD-<short-slug>-feature-plan.md
 
 ## 验证计划
 
-- <需要新增/更新的 TDD 单元测试脚本路径>
-- <源码路径到测试路径的映射>
-- <单测/组件测试/e2e/构建/类型检查/手动验证>
+- <功能完成后的非 TDD 验证命令：类型检查/lint/构建/手动验证等>
+- <是否需要 TDD：待功能完成后询问用户；用户同意后再补充测试脚本路径和源码到测试路径映射>
 - <后续维护者可直接复跑的最小验证命令>
 
 ## 影响范围
@@ -71,12 +70,14 @@ YYYYMMDD-<short-slug>-feature-plan.md
 ```markdown
 已完成 <需求标题> 的前端 mono 功能开发。
 
-计划文档：`docs/plans/<file>-feature-<...>.md`
+计划文档：`docs/plans/<file>-feature-<...>.md`（若用户未同意创建计划文件，说明原因）
 
 主要改动：
 - <改动摘要>
 
-TDD 单元测试脚本：
+TDD 状态：<已执行 / 用户否定后已绕过 / 未询问原因>
+
+TDD 单元测试脚本（仅在用户同意 TDD 后填写）：
 - `<source-file>` -> `<test-file>`：<覆盖的行为>
 - 测试目录依据：<沿用已有约定/新建单元测试目录及原因>
 
