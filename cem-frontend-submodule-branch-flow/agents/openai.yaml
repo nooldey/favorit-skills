@@ -1,4 +1,0 @@
-interface:
-  display_name: "CEM Frontend Submodule Branch Flow"
-  short_description: "Analyze and apply CEM frontend submodule branch diffs safely."
-  default_prompt: "Analyze these CEM frontend submodules and target branches, report uncovered commits, then propose safe next actions."
