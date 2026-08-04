@@ -1,0 +1,4 @@
+interface:
+  display_name: "Stickman Video Director"
+  short_description: "Turn copy into rich 简体中文普通话 stickman videos (9:16, 中国风偏好)"
+  default_prompt: "Use $directing-stickman-videos to turn this copy into a one-minute 简体中文普通话 stickman video prompt package."
